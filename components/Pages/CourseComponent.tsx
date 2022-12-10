@@ -15,6 +15,8 @@ const CourseComponent = (props: { id: string }) => {
     const [course, setCourse] = useState<Course>();
     const [pageIndex, setPageIndex] = useState(0);
     const [selectedPage, setSelectedPage] = useState("d22efda7-b40c-4e19-a3bf-41fb66b14fc5");
+    const [sections, setSections] = useState<Boolean[]>([false, false])
+    const [lessons, setLessons] = useState<Boolean[][]>([[false, false], [false, false]])
 
     const query = gql`
         query CourseById($id: ID!) {
@@ -49,20 +51,34 @@ const CourseComponent = (props: { id: string }) => {
     }
 
     // Nav Bar
-    let nav = course?.sections?.map((section, index) => {
-        let lessons = section.lessons?.map((lesson, index) => {
+    let nav = course?.sections?.map((section, i) => {
+        let lessons = section.lessons?.map((lesson, j) => {
             return <div
                 className='border-y-2'
-                key={`key${index}`}>
+                key={`key${j}`}>
                 <h1 className='text-xl mx-5 ml-12'>{lesson.title}</h1>
             </div>
         })
 
-        return <div key={`key${index}`}>
-            <h1 className='text-2xl mt-5 mx-5'>{section.title}</h1>
-            { lessons }
+        return <div key={`key${i}`}>
+            <h1
+                onClick={() => {
+                    let oldSections = sections
+                    oldSections[i] = !(oldSections[i])
+                    setSections([...oldSections])
+                }}
+                className='text-2xl mt-5 mx-5 hover:cursor-pointer'>
+                    {section.title}
+            </h1>
+            { sections[i] ? lessons : '' }
         </div>
     })
+
+    const handler = (i: number) => {
+        let oldSections = sections
+        oldSections[i] = !oldSections[i]
+        setSections(oldSections)
+    }
 
     return (
         <div className='h-full'>
